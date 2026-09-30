@@ -18,7 +18,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.mock.web.MockPart;
 import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
@@ -38,10 +41,17 @@ class BatchControllerTest {
             ]}
             """;
 
+    // Mirrors curl's -F 'metadata={...};type=application/json': a plain part with no filename.
+    private static MockPart jsonPart(String name, String json) {
+        MockPart part = new MockPart(name, json.getBytes());
+        part.getHeaders().set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+        return part;
+    }
+
     @Test
     void missing_caller_header_fails_whole_batch() throws Exception {
         mockMvc.perform(multipart("/batches")
-                        .file(new MockMultipartFile("metadata", "", "application/json", VALID_METADATA.getBytes()))
+                        .part(jsonPart("metadata", VALID_METADATA))
                         .file(new MockMultipartFile("files", "request-01.txt", "text/plain", "body".getBytes()))
                         .file(new MockMultipartFile("files", "request-08.txt", "text/plain", new byte[0])))
                 .andExpect(status().isBadRequest())
@@ -57,7 +67,7 @@ class BatchControllerTest {
                 ]}
                 """;
         mockMvc.perform(multipart("/batches")
-                        .file(new MockMultipartFile("metadata", "", "application/json", dupMetadata.getBytes()))
+                        .part(jsonPart("metadata", dupMetadata))
                         .file(new MockMultipartFile("files", "a.txt", "text/plain", "x".getBytes()))
                         .file(new MockMultipartFile("files", "b.txt", "text/plain", "y".getBytes()))
                         .header("X-Caller-Id", "atlas-employee-01"))
@@ -68,7 +78,7 @@ class BatchControllerTest {
     @Test
     void missing_file_part_fails_whole_batch_non_2xx() throws Exception {
         mockMvc.perform(multipart("/batches")
-                        .file(new MockMultipartFile("metadata", "", "application/json", VALID_METADATA.getBytes()))
+                        .part(jsonPart("metadata", VALID_METADATA))
                         .file(new MockMultipartFile("files", "request-01.txt", "text/plain", "body".getBytes()))
                         // request-08.txt deliberately not uploaded
                         .header("X-Caller-Id", "atlas-employee-01"))
@@ -79,7 +89,7 @@ class BatchControllerTest {
     @Test
     void extra_file_part_fails_whole_batch_non_2xx() throws Exception {
         mockMvc.perform(multipart("/batches")
-                        .file(new MockMultipartFile("metadata", "", "application/json", VALID_METADATA.getBytes()))
+                        .part(jsonPart("metadata", VALID_METADATA))
                         .file(new MockMultipartFile("files", "request-01.txt", "text/plain", "body".getBytes()))
                         .file(new MockMultipartFile("files", "request-08.txt", "text/plain", new byte[0]))
                         .file(new MockMultipartFile("files", "unexpected.txt", "text/plain", "surprise".getBytes()))
@@ -102,7 +112,7 @@ class BatchControllerTest {
                 ));
 
         mockMvc.perform(multipart("/batches")
-                        .file(new MockMultipartFile("metadata", "", "application/json", VALID_METADATA.getBytes()))
+                        .part(jsonPart("metadata", VALID_METADATA))
                         .file(new MockMultipartFile("files", "request-01.txt", "text/plain", "body".getBytes()))
                         .file(new MockMultipartFile("files", "request-08.txt", "text/plain", new byte[0]))
                         .header("X-Caller-Id", "atlas-employee-01"))

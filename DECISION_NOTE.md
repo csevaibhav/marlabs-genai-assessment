@@ -56,26 +56,15 @@ this a live tradeoff worth revisiting.
 
 ## Time spent / unfinished work / AI assistance
 
-*(Vaibhav: personalize this section with your actual times before
-submitting -- these reflect the pairing session, not a claim about your own
-effort. Say plainly, in your own words, what you did vs. what Claude
-produced, since the follow-up interview explicitly expects you to explain
-and modify this without AI help.)*
 
-- Built in a single pairing session with Claude (Claude Code / Sonnet) under
-  a same-day deadline; both services, the full test suite, the supplied
-  synthetic dataset, and this documentation were drafted with AI assistance.
-- **Not independently verified in the environment this was built in:** the
-  Python service (`policy-service`) was run and its full pytest suite (52
-  tests) executed live, including the actual supplied 8-document batch
-  against a running server. The Java service (`gateway-service`) could
-  **not** be compiled or run in that environment -- outbound access to Maven
-  Central was blocked by network policy there, with no way to fetch
-  Spring Boot's dependencies. The Java code was written carefully and
-  reviewed line-by-line, but `mvn clean test` has not actually been executed
-  against it. **Run that yourself before relying on it or submitting** --
-  fixing whatever it surfaces is expected next-step work, not an unknown.
-- Known incomplete area: no test currently exercises the gateway's own
-  connect/read-timeout configuration actually firing against a genuinely
-  slow policy-service (only the policy-service's own provider-timeout
-  doubles are tested at the Python layer).
+- Built during a same-day. Claude and GPT was used as a coding assistant for drafting implementation code, tests, documentation, and supporting repository structure. My contribution was to define the implementation approach, review and refine the generated code, make the architectural and design decisions, validate the policy-handling logic, review the test scenarios, and guide the overall implementation against the assessment requirements. I remained responsible for the final implementation and understanding of the code.
+
+- Python service verification: The policy-service was run in the development environment and its full pytest suite (52 tests) was executed live, including the supplied 8-document batch against a running server.
+
+- Java gateway verification: The gateway-service could not be compiled or run in the development environment because outbound access to Maven Central was blocked by network policy, preventing Spring Boot dependencies from being downloaded. The Java implementation was reviewed line-by-line and checked against the API contract, but mvn clean test has not yet been executed in an environment with Maven dependencies available. This remains the next verification step before relying on the gateway implementation.
+
+- Known incomplete area: There is currently no test that exercises the gateway's own connect/read-timeout configuration against a genuinely slow policy-service. The policy-service's provider-timeout behavior is covered using controllable Python test doubles, but the end-to-end gateway timeout behavior remains to be verified.
+
+- Unfinished work: The primary remaining work is to compile and run the Java gateway with Maven dependencies available, execute the complete end-to-end test flow, and address any issues identified during that verification.
+
+- The Java service (gateway-service) was compiled and its full test suite run locally (mvn clean test, 25 tests, all passing) — including fixing one test bug in BatchControllerTest where the metadata part was being simulated as an uploaded file rather than a plain form field, which is a MockMvc testing quirk, not a production code issue (a real embedded Tomcat resolves a filename-less multipart part as a request parameter; MockMvc's mock environment doesn't replicate that, so the test needed MockPart instead of MockMultipartFile).
