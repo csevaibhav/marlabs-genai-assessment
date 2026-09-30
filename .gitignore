@@ -1,0 +1,21 @@
+# Python
+policy-service/.venv/
+**/__pycache__/
+*.pyc
+.pytest_cache/
+**/.pytest_cache/
+
+# Java / Maven
+gateway-service/target/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+
+# misc
+*.log
+/tmp/

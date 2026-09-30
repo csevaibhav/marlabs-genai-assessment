@@ -1,0 +1,15 @@
+server:
+  port: 8080
+
+policy-service:
+  base-url: ${POLICY_SERVICE_BASE_URL:http://localhost:8000}
+  connect-timeout-ms: 2000
+  # Bounded read timeout for the whole /internal/answer or
+  # /internal/process-batch call. Kept modest since the offline model
+  # double never legitimately takes long; a real model integration would
+  # need a larger, still-bounded value.
+  read-timeout-ms: 5000
+
+logging:
+  level:
+    com.marlabs.gateway: INFO

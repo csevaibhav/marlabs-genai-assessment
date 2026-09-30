@@ -1,0 +1,14 @@
+{
+    "status": "CONFLICT",
+    "answer": null,
+    "citations": [
+        {
+            "chunk_id": "atlas-home-office-a",
+            "quote": "The annual home-office allowance for employees is INR 12000."
+        },
+        {
+            "chunk_id": "atlas-home-office-b",
+            "quote": "The annual home-office allowance for employees is INR 15000."
+        }
+    ]
+}
